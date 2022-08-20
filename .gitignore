@@ -3,5 +3,5 @@
 *.log
 tmp/
 
-.doom-literate.d/config.el
-.doom-literate.d/packages.el
+doom-literate.d/config.el
+doom-literate.d/packages.el
