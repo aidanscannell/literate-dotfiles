@@ -1,0 +1,7 @@
+#+title: Readme
+
+WARNING: Do not edit [[config.el]] or [[packages.el]] as these are automatically generated when
+tangling [[config.org]].
+
+Put custom Emacs configuration in [[config.org]] and specify which doom modules (and addons)
+ to use in [[init.el]]
