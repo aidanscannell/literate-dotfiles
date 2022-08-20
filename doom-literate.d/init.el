@@ -81,8 +81,8 @@
 
        :checkers
        syntax              ; tasing you for every semicolon you forget
-       ;; (spell +aspell
-       ;;        +flyspell) ; tasing you for misspelling mispelling
+       (spell +everywhere
+              +flyspell) ; tasing you for misspelling mispelling
        grammar           ; tasing grammar mistake every you make
 
        :tools
