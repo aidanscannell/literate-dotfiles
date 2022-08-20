@@ -6,12 +6,11 @@ This will create all the directories/files in the right locations with the confi
 To update a config file simply edit this file and then run =(org-bable-tangle)=.
 Only files with changes will be updated as I have used ~:cache yes~.
 
-* Configurations
-** Warning header for tangled files
+* Warning header for tangled files
 Include a header in all tangled files explaining that these files are generated with org-babel
 and should not be directly edited. It can be included in other files by including it in other blocks
 with ~<<boilerplate-file-header>>~.
-*** Templates
+** Templates
 # TODO don't repeat yourself!
 #+name: boilerplate-file-header
 #+begin_src sh :tangle no
@@ -27,36 +26,36 @@ with ~<<boilerplate-file-header>>~.
 ;; This file should not be directly edited. Instead edit ~/.dotfiles/README.org
 ;; and then tangle the file.
 #+end_src
-*** Add template to .zshrc
+** Add template to .zshrc
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
 <<boilerplate-file-header>>
 #+end_src
-*** Add template to .zprofile
+** Add template to .zprofile
 #+begin_src sh :tangle ~/.zprofile :padline yes :noweb tangle :cache yes
 <<boilerplate-file-header>>
 #+end_src
-*** Add template to .zshenv
+** Add template to .zshenv
 #+begin_src sh :tangle ~/.zshenv :padline yes :noweb tangle :cache yes
 <<boilerplate-file-header>>
 #+end_src
-** Ascii art/quote at stlolcat
+* Ascii art/quote at stlolcat
 Add a ascii art and a quote when .zshrc is sourced.
 For example, when a new terminal is opened.
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
 fortune -s computers | cowsay -f dragon | lolcat
 #+end_src
-** Paths
+* Paths
 Set the paths for my dotfiles and configs
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
 export HOME_CONFIG_DIR="$HOME/.config"
 export HOME_CONFIG_DOTFILE_DIR="$HOME/.dotfiles"
 #+end_src
-** Emacs
+* Emacs
 I use [[https://github.com/doomemacs/doomemacs][Doom Emacs]] so let's start by adding doom to path.
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
 export PATH="$HOME_CONFIG_DIR/emacs/bin:$PATH"
 #+end_src
-*** Emacs profiles
+** Emacs profiles
 I use [[https://github.com/doomemacs/doomemacs][Doom Emacs]] to manage multiple Emacs configs. See [[https://gist.github.com/hlissner/46d6423a49f19d30e34336eb5bc1a07e][here]] for more details.
 #+begin_src emacs-lisp :tangle ~/.config/emacs/profiles.el :padline yes :noweb tangle :cache yes
 <<emacs-boilerplate-file-header>>
@@ -72,7 +71,7 @@ I use [[https://github.com/doomemacs/doomemacs][Doom Emacs]] to manage multiple 
 My literature doom config is [[~/.dotfiles/doom-literate.d]].
 Doom autmatically tangles this file when starting.
 
-*** Set default profile
+** Set default profile
 Set up emacs to use my literate doom config by default.
 #+begin_src sh :tangle ~/.zshenv :padline yes :noweb tangle :cache yes
 export EMACSDIR=~/.config/emacs
@@ -80,32 +79,32 @@ export DOOM_EMACS=~/.config/emacs
 export DOOMDIR=~/.dotfiles/doom-literate.d
 #+end_src
 
-*** Set EDITOR to use Emacs
+** Set EDITOR to use Emacs
 Set my editor to be emacs in GUI, emacsclient in terminal and to use vim if they fail.
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
 export EDITOR="~/Homebrew/opt/emacs-mac/bin/emacsclient"
 export VISUAL="~/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs"
 export ALTERNATE_EDITOR="vim"
 #+end_src
-*** Aliases for Emacs/eamcsclient
+** Aliases for Emacs/eamcsclient
 Add aliases for calling emacs and emacsclient
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
 alias te="emacsclient -c "
 alias emacs="~/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs"
 #+end_src
-*** Aliases for ranger/dired
+** Aliases for ranger/dired
 Alias =ranger= and =dired= to open dired in emacsclient.
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
 alias dired="te --eval '(dired \".\")'"
 alias ranger=dired
 #+end_src
 
-** Homebrew
+* Homebrew
 Add Homebrew path to zprofile
 #+begin_src sh :tangle ~/.zprofile :padline yes :noweb tangle :cache yes
 export PATH=$PATH:/Users/scannea1/Homebrew/bin
 #+end_src
-** pyenv
+* pyenv
 #+begin_src sh :tangle ~/.zprofile :padline yes :noweb tangle :cache yes
 eval "$(pyenv init --path)"
 #+end_src
@@ -114,7 +113,7 @@ if command -v pyenv 1>/dev/null 2>&1; then
     eval "$(pyenv init -)"
 fi
 #+end_src
-** Prompt: powerlevel10k
+* Prompt: powerlevel10k
 Powerlevel10k is configured on command line using:
 #+begin_src sh
 p10k configure
@@ -131,7 +130,7 @@ fi
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 #+end_src
-** Oh my zsh
+* Oh my zsh
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -225,7 +224,7 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 #+end_src
-** .zshrc general
+* .zshrc general
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
 # User configuration
 # You may need to manually set your language environment
@@ -235,7 +234,7 @@ export LANG=en_US.UTF-8
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 #+end_src
-** gitconfig
+* gitconfig
 #+begin_src sh :tangle ~/.gitconfig :padline yes :noweb tangle :cache yes
 <<boilerplate-file-header>>
 
@@ -243,7 +242,7 @@ export LANG=en_US.UTF-8
     email = scannell.aidan@gmail.com
     name = Aidan Scannell
 #+end_src
-** Yabai
+* Yabai
 :PROPERTIES:
 :header-args: :tangle ~/.config/yabai/yabairc :mkdirp yes :padline yes :noweb tangle :cache yes
 :END:
@@ -255,7 +254,7 @@ export LANG=en_US.UTF-8
 #  - https://github.com/koekeishiya/yabai/wiki/Installing-yabai-(latest-release)
 #+end_src
 
-*** Global settings
+** Global settings
 #+begin_src sh
 yabai -m config mouse_follows_focus          off
 yabai -m config focus_follows_mouse          off
@@ -280,7 +279,7 @@ yabai -m config mouse_action2                resize
 yabai -m config mouse_drop_action            swap
 #+end_src
 
-*** General space settings
+** General space settings
 #+begin_src sh
 yabai -m config layout                       bsp
 yabai -m config top_padding                  12
@@ -290,111 +289,12 @@ yabai -m config right_padding                12
 yabai -m config window_gap                   06
 #+end_src
 
-*** Config loaded message
+** Config loaded message
 #+begin_src sh
 echo "yabai configuration loaded.."
 #+end_src
 
-*** Config
-# **** Defaults
-# We're going to just leave the mouse totally out of the picture:
-# #+begin_src shell
-# # global settings
-# yabai -m config mouse_follows_focus          off
-# yabai -m config focus_follows_mouse          off
-# #+end_src
-
-# And let's make new windows spawn to the right and to the bottom:
-# #+begin_src shell
-# yabai -m config window_placement             second_child
-# #+end_src
-
-# Let's make sure floating windows can be sent to the back -- this is the default,
-# but it's here for clarity:
-# #+begin_src shell
-# yabai -m config window_topmost               off
-# #+end_src
-
-# Just because the window is inactive doesn't mean it shouldn't be easily visible,
-# so we'll turn off opacity and also add a little shadow for depth:
-# #+begin_src shell
-# yabai -m config window_opacity               off
-# yabai -m config window_opacity_duration      0.0
-# yabai -m config window_shadow                on
-# #+end_src
-
-# Window equity now!
-# #+begin_src shell
-# yabai -m config split_ratio                  0.50
-# yabai -m config auto_balance                 off
-# #+end_src
-
-# Just in case we break down and use a mouse...
-# #+begin_src shell
-# yabai -m config mouse_modifier               alt
-# yabai -m config mouse_action1                move
-# yabai -m config mouse_action2                resize
-# #+end_src
-
-# The default layout:
-# #+begin_src shell
-# yabai -m config layout                       bsp
-# #+end_src
-
-# #+begin_src shell
-# # SPACEBAR_HEIGHT=$(spacebar -m config height)
-# # yabai -m config external_bar all:$SPACEBAR_HEIGHT:0
-# #+end_src
-
-# These are the things we always want to float:
-# #+begin_src shell
-# yabai -m rule --add app='^System Information$' manage=off
-# yabai -m rule --add app='^System Preferences$' manage=off
-# yabai -m rule --add title='Preferences$' manage=off
-# yabai -m rule --add title='Settings$' manage=off
-# #+end_src
-
-# FIN
-# #+begin_src shell
-# echo "yabai configuration loaded.."
-# #+end_src
-
-# **** Stacked Spaces
-# When a space is stacked, these rules apply -- to make it work nicely with
-# stackline
-# #+begin_src shell
-# yabai -m signal --add event=window_created action="~/.config/yabai/refresh.sh"
-# yabai -m signal --add event=window_destroyed action="~/.config/yabai/refresh.sh"
-# #+end_src
-
-# And of course ~refresh.sh~, which I stole from these two lovely [[https://github.com/AdamWagner/stackline/issues/57#issuecomment-766596737][comm]]-[[https://github.com/AdamWagner/stackline/issues/57#issuecomment-873378890][ents]]:
-# #+begin_src shell :tangle ~/.config/yabai/refresh.sh :comments link :mkdirp yes :padline no :noweb tangle :cache yes :tangle-mode (identity #o755)
-# #!/usr/bin/env bash
-
-# number_of_windows=$(yabai -m query --windows --space | /usr/local/bin/jq 'length')
-# number_of_stacked=$(yabai -m query --windows --space | /usr/local/bin/jq -c 'map(select(."stack-index" != 0)) | length')
-# currspace=$(yabai -m query --spaces --space | /usr/local/bin/jq '.index')
-
-# padding=8
-# spadding=40
-
-# [[ "$number_of_windows" -eq 1 ]] && padding=0
-# [[ "$number_of_stacked" = 0 ]] && spadding=$padding
-
-# yabai -m config --space "$currspace" top_padding $padding
-# yabai -m config --space "$currspace" bottom_padding $padding
-# yabai -m config --space "$currspace" left_padding $spadding
-# yabai -m config --space "$currspace" right_padding $spadding
-# yabai -m config --space "$currspace" window_gap $padding
-# #+end_src
-# **** Spaces
-# ***** Comms Space
-# This is the space for my communication apps, namely Slack, Teams, Signal, and Discord
-# #+begin_src shell
-
-# #+end_src
-
-** skhd
+* skhd
 :PROPERTIES:
 :header-args: :tangle ~/.config/skhd/skhdrc :mkdirp yes :padline yes :noweb tangle :cache yes
 :END:
@@ -402,7 +302,7 @@ echo "yabai configuration loaded.."
 <<boilerplate-file-header>>
 #+end_src
 
-*** Config
+** Config
 #+begin_src sh
 # open iTerm
 # cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d ~
