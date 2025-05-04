@@ -265,14 +265,14 @@ Change workspaces to "layouts" using l instead of using TAB
 #+begin_src emacs-lisp :tangle yes
 ;; TODO update these to not use dropbox
 ;; dired quick links
-(defun my/open-config () (interactive) (dired "/Users/scannea1/.config"))
-(defun my/open-dotfiles() (interactive) (dired "/Users/scannea1/.dotfiles"))
-(defun my/open-python-projects () (interactive) (dired "/Users/scannea1/Developer/python-projects"))
-(defun my/open-home () (interactive) (dired "/Users/scannea1"))
-(defun my/open-documents () (interactive) (dired "/Users/scannea1/Documents"))
+(defun my/open-config () (interactive) (dired "/Users/ascannel/.config"))
+(defun my/open-dotfiles() (interactive) (dired "/Users/ascannel/.dotfiles"))
+(defun my/open-python-projects () (interactive) (dired "/Users/ascannel/Developer/python-projects"))
+(defun my/open-home () (interactive) (dired "/Users/ascannel"))
+(defun my/open-documents () (interactive) (dired "/Users/ascannel/Documents"))
 (defun my/open-emacs () (interactive) (dired doom-private-dir))
-(defun my/open-downloads () (interactive) (dired "/Users/scannea1/Downloads"))
-(defun my/open-notes () (interactive) (dired "/Users/scannea1/Dropbox/org"))
+(defun my/open-downloads () (interactive) (dired "/Users/ascannel/Downloads"))
+(defun my/open-notes () (interactive) (dired "/Users/ascannel/Dropbox/org"))
 
 (map! :after dired
       :map dired-mode-map
