@@ -95,7 +95,8 @@ export ALTERNATE_EDITOR="vim"
 ** Aliases for Emacs/eamcsclient
 Add aliases for calling emacs and emacsclient
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
-alias te="emacsclient -c "
+# alias te="emacsclient -c "
+alias te="emacsclient -nw"
 alias emacs="~/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs"
 #+end_src
 ** Aliases for ranger/dired
@@ -261,39 +262,95 @@ export LANG=en_US.UTF-8
 #+end_src
 
 ** Global settings
+# #+begin_src sh
+# yabai -m config mouse_follows_focus          off
+# yabai -m config focus_follows_mouse          off
+# yabai -m config window_origin_display        default
+# yabai -m config window_placement             second_child
+# yabai -m config window_topmost               off
+# yabai -m config window_shadow                on
+# yabai -m config window_opacity               off
+# yabai -m config window_opacity_duration      0.0
+# yabai -m config active_window_opacity        1.0
+# yabai -m config normal_window_opacity        0.90
+# yabai -m config window_border                off
+# yabai -m config window_border_width          6
+# yabai -m config active_window_border_color   0xff775759
+# yabai -m config normal_window_border_color   0xff555555
+# yabai -m config insert_feedback_color        0xffd75f5f
+# yabai -m config split_ratio                  0.50
+# yabai -m config auto_balance                 off
+# yabai -m config mouse_modifier               fn
+# yabai -m config mouse_action1                move
+# yabai -m config mouse_action2                resize
+# yabai -m config mouse_drop_action            swap
+# #+end_src
 #+begin_src sh
-yabai -m config mouse_follows_focus          off
-yabai -m config focus_follows_mouse          off
-yabai -m config window_origin_display        default
-yabai -m config window_placement             second_child
-yabai -m config window_topmost               off
-yabai -m config window_shadow                on
-yabai -m config window_opacity               off
-yabai -m config window_opacity_duration      0.0
-yabai -m config active_window_opacity        1.0
-yabai -m config normal_window_opacity        0.90
-yabai -m config window_border                off
-yabai -m config window_border_width          6
-yabai -m config active_window_border_color   0xff775759
-yabai -m config normal_window_border_color   0xff555555
-yabai -m config insert_feedback_color        0xffd75f5f
-yabai -m config split_ratio                  0.50
-yabai -m config auto_balance                 off
-yabai -m config mouse_modifier               fn
-yabai -m config mouse_action1                move
-yabai -m config mouse_action2                resize
-yabai -m config mouse_drop_action            swap
+#!/usr/bin/env sh
+
+#
+# for this to work you must configure sudo such that
+# it will be able to run the command without password
+#
+# see this wiki page for information:
+#  - https://github.com/koekeishiya/yabai/wiki/Installing-yabai-(latest-release)#configure-scripting-addition
+#
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+sudo yabai --load-sa
+#
+
+# global settings
+yabai -m config                                 \
+    mouse_follows_focus          off            \
+    focus_follows_mouse          off            \
+    window_origin_display        default        \
+    window_placement             second_child   \
+    window_zoom_persist          on             \
+    window_topmost               off            \
+    window_shadow                on             \
+    window_animation_duration    0.0            \
+    window_animation_frame_rate  120            \
+    window_opacity_duration      0.0            \
+    active_window_opacity        1.0            \
+    normal_window_opacity        0.90           \
+    window_opacity               off            \
+    insert_feedback_color        0xffd75f5f     \
+    active_window_border_color   0xff775759     \
+    normal_window_border_color   0xff555555     \
+    window_border_width          4              \
+    window_border_radius         12             \
+    window_border_blur           off            \
+    window_border_hidpi          on             \
+    window_border                off            \
+    split_ratio                  0.50           \
+    split_type                   auto           \
+    auto_balance                 off            \
+    top_padding                  12             \
+    bottom_padding               12             \
+    left_padding                 12             \
+    right_padding                12             \
+    window_gap                   06             \
+    layout                       bsp            \
+    mouse_modifier               fn             \
+    mouse_action1                move           \
+    mouse_action2                resize         \
+    mouse_drop_action            swap
+
+yabai -m rule --add app="^System Settings" manage=off
+yabai -m rule --add app="^NordPass" manage=off
+
+echo "yabai configuration loaded.."
 #+end_src
 
 ** General space settings
-#+begin_src sh
-yabai -m config layout                       bsp
-yabai -m config top_padding                  12
-yabai -m config bottom_padding               12
-yabai -m config left_padding                 12
-yabai -m config right_padding                12
-yabai -m config window_gap                   06
-#+end_src
+# #+begin_src sh
+# yabai -m config layout                       bsp
+# yabai -m config top_padding                  12
+# yabai -m config bottom_padding               12
+# yabai -m config left_padding                 12
+# yabai -m config right_padding                12
+# yabai -m config window_gap                   06
+# #+end_src
 
 ** Config loaded message
 #+begin_src sh
@@ -314,17 +371,19 @@ echo "yabai configuration loaded.."
 # cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d ~
 # cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d ~
 # cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d "/Users/scannea1/Homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'"
-# cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d ~
+cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d ~
 # "/Users/scannea1/Homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'"
 # cmd - return : /Users/scannea1/Homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'
 # cmd - return : /Users/scannea1/Homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'
-cmd - return : /Users/scannea1/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs --eval '(vterm)'
+# cmd - return : /Users/scannea1/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs --eval '(vterm)'
+# cmd - return : /Users/scannea1/Homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'
 
 
 # open org capture in emacs
 #cmd - o : ~/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs --eval '(+org-capture/open-frame)'
 
-cmd - d : /Users/scannea1/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs --eval '(dired "~/")'
+cmd - d: /Users/scannea1/Homebrew/opt/emacs-mac/bin/emacsclient -c -e '(dired "~/")'
+# cmd - d : /Users/scannea1/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs --eval '(dired "~/")'
 #cmd - d : /usr/local/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs.sh --eval '(dired ~/)'
 
 # open brave browser
@@ -334,6 +393,21 @@ cmd - i : /Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --singl
 
 # open a new GUI instance of emacs
 cmd - g : /Users/scannea1/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs
+
+meh - b : open -a /Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser
+meh - c : open -a /System/Applications/Calendar.app/Contents/MacOS/Calendar
+meh - e : open -a /Applications/Emacs.app/Contents/MacOS/Emacs
+meh - f : open -a /System/Applications/Finder.app/Contents/MacOS/Finder
+meh - i : open -a /Applications/iTerm.app/Contents/MacOS/iTerm2
+meh - k : open -a /Applications/Keynote.app/Contents/MacOS/Keynote
+meh - m : open -a /System/Applications/Mail.app/Contents/MacOS/Mail
+meh - p : open -a /Applications/NordPass.app/Contents/MacOS/NordPass
+meh - s : open -a /Applications/Spotify.app/Contents/MacOS/Spotify
+meh - l : open -a /Applications/Slack.app/Contents/MacOS/Slack
+meh - r : open -a /System/Applications/Reminders.app/Contents/MacOS/Reminders
+meh - v : open -a /Applications/NordVPN.app/Contents/MacOS/NordVPN
+meh - w : open -a /Applications/WhatsApp.app/Contents/MacOS/WhatsApp
+meh - z : open -a /Applications/Zotero.app/Contents/MacOS/Zotero
 
 # open a instance of emacs and
 # cmd + shift - e : ger
@@ -521,3 +595,51 @@ alt - t : yabai -m window --toggle float;\
 # ctrl + alt - d : yabai -m space --layout float
 #+end_src
 
+
+* Mbsynrc
+:PROPERTIES:
+:header-args: :tangle ~/.mbsyncrc :mkdirp yes :padline yes :noweb tangle :cache yes
+:END:
+#+begin_src shell :comments no
+<<boilerplate-file-header>>
+#+end_src
+
+#+begin_src sh
+IMAPStore gmail-remote
+Host imap.gmail.com
+SSLType IMAPS
+AuthMechs LOGIN
+User scannell.aidan@gmail.com
+PassCmd "pass email/scannell.aidan@gmail.com"
+
+MaildirStore gmail-local
+Path ~/Mail/gmail/
+Inbox ~/Mail/gmail/INBOX
+Subfolders Verbatim
+
+Channel gmail
+Master :gmail-remote:
+Slave :gmail-local:
+Create Both
+Expunge Both
+Patterns * !"[Gmail]/All Mail" !"[Gmail]/Important" !"[Gmail]/Starred" !"[Gmail]/Bin"
+SyncState *
+#+end_src
+
+* direnv
+Not sure I actually need to do this.
+#+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
+# Add direnv to zsh
+eval "$(direnv hook zsh)"
+#+end_src
+
+#+begin_src sh :tangle ~/.config/direnv/direnvrc :padline yes :noweb tangle :cache yes
+<<boilerplate-file-header>>
+#+end_src
+
+* mujoco
+
+#+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
+# Muhoco stuff
+export CC=~/Homebrew/bin/gcc-13
+#+end_src
