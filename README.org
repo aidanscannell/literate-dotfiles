@@ -82,15 +82,15 @@ export DOOMDIR=~/.dotfiles/doom-literate.d
 ** Set EDITOR to use Emacs
 Set my editor to be emacs in GUI, emacsclient in terminal and to use vim if they fail.
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
-export EDITOR="~/Homebrew/opt/emacs-mac/bin/emacsclient"
-export VISUAL="~/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs"
+export EDITOR="/opt/homebrew/opt/emacs-mac/bin/emacsclient"
+export VISUAL="/opt/homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs"
 export ALTERNATE_EDITOR="vim"
 #+end_src
 ** Aliases for Emacs/eamcsclient
 Add aliases for calling emacs and emacsclient
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
 alias te="emacsclient -c "
-alias emacs="~/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs"
+alias emacs="/opt/homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs"
 #+end_src
 ** Aliases for ranger/dired
 Alias =ranger= and =dired= to open dired in emacsclient.
@@ -102,16 +102,19 @@ alias ranger=dired
 * Homebrew
 Add Homebrew path to zprofile
 #+begin_src sh :tangle ~/.zprofile :padline yes :noweb tangle :cache yes
-export PATH=$PATH:/Users/scannea1/Homebrew/bin
+export PATH=$PATH:/opt/homebrew/bin
 #+end_src
 * pyenv
 #+begin_src sh :tangle ~/.zprofile :padline yes :noweb tangle :cache yes
-eval "$(pyenv init --path)"
+# eval "$(pyenv init --path)"
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
 #+end_src
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
-if command -v pyenv 1>/dev/null 2>&1; then
-    eval "$(pyenv init -)"
-fi
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
 #+end_src
 * Prompt: powerlevel10k
 Powerlevel10k is configured on command line using:
@@ -120,16 +123,10 @@ p10k configure
 #+end_src
 
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 #+end_src
+
 * Oh my zsh
 #+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
 # Path to your oh-my-zsh installation.
@@ -234,6 +231,40 @@ export LANG=en_US.UTF-8
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 #+end_src
+* conda/mamba
+#+begin_src sh :tangle ~/.zshrc :padline yes :noweb tangle :cache yes
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/opt/homebrew/Caskroom/miniforge/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/opt/homebrew/Caskroom/miniforge/base/etc/profile.d/conda.sh" ]; then
+        . "/opt/homebrew/Caskroom/miniforge/base/etc/profile.d/conda.sh"
+    else
+        export PATH="/opt/homebrew/Caskroom/miniforge/base/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+# >>> mamba initialize >>>
+# !! Contents within this block are managed by 'mamba shell init' !!
+export MAMBA_EXE='/opt/homebrew/bin/mamba';
+export MAMBA_ROOT_PREFIX='/Users/ascannel/.local/share/mamba';
+__mamba_setup="$("$MAMBA_EXE" shell hook --shell zsh --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__mamba_setup"
+else
+    alias mamba="$MAMBA_EXE"  # Fallback on help from mamba activate
+fi
+unset __mamba_setup
+# <<< mamba initialize <<<
+
+# Activate default env when opening new shell
+mamba activate default
+#+end_src
+
 * gitconfig
 #+begin_src sh :tangle ~/.gitconfig :padline yes :noweb tangle :cache yes
 <<boilerplate-file-header>>
@@ -256,8 +287,8 @@ export LANG=en_US.UTF-8
 
 ** Global settings
 #+begin_src sh
-yabai -m config mouse_follows_focus          off
-yabai -m config focus_follows_mouse          off
+yabai -m config mouse_follows_focus          on
+yabai -m config focus_follows_mouse          on
 yabai -m config window_origin_display        default
 yabai -m config window_placement             second_child
 yabai -m config window_topmost               off
@@ -282,11 +313,21 @@ yabai -m config mouse_drop_action            swap
 ** General space settings
 #+begin_src sh
 yabai -m config layout                       bsp
-yabai -m config top_padding                  12
-yabai -m config bottom_padding               12
-yabai -m config left_padding                 12
-yabai -m config right_padding                12
+yabai -m config top_padding                  6
+yabai -m config bottom_padding               6
+yabai -m config left_padding                 6
+yabai -m config right_padding                6
 yabai -m config window_gap                   06
+#+end_src
+
+#+begin_src sh
+yabai -m rule --add app='System Settings' manage=off
+# yabai -m rule --add app='NordPass' manage=off
+yabai -m rule --add app='NordPass' display=east
+yabai -m rule --add app='Mail' display=west
+yabai -m rule --add app='Slack' display=west
+yabai -m rule --add app='Calendar' display=east
+yabai -m rule --add app='Reminders' display=east
 #+end_src
 
 ** Config loaded message
@@ -307,18 +348,18 @@ echo "yabai configuration loaded.."
 # open iTerm
 # cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d ~
 # cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d ~
-# cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d "/Users/scannea1/Homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'"
-# cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d ~
-# "/Users/scannea1/Homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'"
-# cmd - return : /Users/scannea1/Homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'
-# cmd - return : /Users/scannea1/Homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'
-cmd - return : /Users/scannea1/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs --eval '(vterm)'
+# cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d "/opt/homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'"
+cmd - return : /Applications/iTerm.app/Contents/MacOS/iTerm2 --single-instance -d ~
+# "/opt/homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'"
+# cmd - return : /opt/homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'
+# cmd - return : /opt/homebrew/opt/emacs-mac/bin/emacsclient -c -e '(vterm)' '(doom/window-maximize-buffer)'
+# cmd - return : /opt/homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs --eval '(vterm)'
 
 
 # open org capture in emacs
-#cmd - o : ~/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs --eval '(+org-capture/open-frame)'
+#cmd - o : /opt/homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs --eval '(+org-capture/open-frame)'
 
-cmd - d : /Users/scannea1/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs --eval '(dired "~/")'
+cmd - d : /opt/homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs --eval '(dired "~/")'
 #cmd - d : /usr/local/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs.sh --eval '(dired ~/)'
 
 # open brave browser
@@ -327,17 +368,17 @@ cmd - i : /Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --singl
 # cmd - i : /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --single-instance --incognito
 
 # open a new GUI instance of emacs
-cmd - g : /Users/scannea1/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs
+cmd - g : /opt/homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs
 
 # open a instance of emacs and
 # cmd + shift - e : ger
 # cmd + shift - e : /usr/local/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs
-# cmd + shift - e : ~/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs.sh
+# cmd + shift - e : /opt/homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs.sh
 # cmd + shift - e : gemacs
 # cmd + shift - e : ~/.emacs.d/emacs-client-server
 # cmd + shift - e : ~/.emacs.config/emacs-client-server
-# cmd + e : ~/Homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs.sh
-# cmd + e : ~/Homebrew/opt/emacs-mac/bin/emacsclient -nw
+# cmd + e : /opt/homebrew/opt/emacs-mac/Emacs.app/Contents/MacOS/Emacs.sh
+# cmd + e : /opt/homebrew/opt/emacs-mac/bin/emacsclient -nw
 
 # open mail in a new terminal instance of emacs
 # cmd + shift - m : emacs --eval '(mu4e)'
@@ -357,6 +398,10 @@ alt - h : yabai -m window --focus west
 alt - j : yabai -m window --focus south
 alt - k : yabai -m window --focus north
 alt - l : yabai -m window --focus east
+
+#change focus between external displays (left and right)
+alt - s: yabai -m display --focus west
+alt - g: yabai -m display --focus east
 
 # swap window
 shift + alt - h : yabai -m window --swap west
@@ -514,4 +559,3 @@ alt - t : yabai -m window --toggle float;\
 # ctrl + alt - a : yabai -m space --layout bsp
 # ctrl + alt - d : yabai -m space --layout float
 #+end_src
-
