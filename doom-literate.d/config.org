@@ -1,37 +1,45 @@
-#+title: Config
+#+title: Literate Emacs Configuration
+#+HUGO_BASE_DIR: ~/web-projects/aidanscannell-hugo-academic/
+#+HUGO_SECTION: notes/configs/
+#+EXPORT_FILE_NAME: doom-emacs-config.md
+#+HUGO_FRONT_MATTER_FORMAT: yaml
+#+HUGO_CUSTOM_FRONT_MATTER: :type book
+My personal [[https://github.com/doomemacs/doomemacs][doom emacs]] literate configuration.
 * Doom Configurations
 ** Doom config options
-Whenever you reconfigure a package, make sure to wrap your config in an
-`after!' block, otherwise Doom's defaults may override your settings. E.g.
+#+begin_src emacs-lisp :tangle yes
+;; Whenever you reconfigure a package, make sure to wrap your config in an
+;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
 
-  (after! PACKAGE
-    (setq x y))
+;;   (after! PACKAGE
+;;     (setq x y))
 
-The exceptions to this rule:
+;; The exceptions to this rule:
 
-  - Setting file/directory variables (like `org-directory')
-  - Setting variables which explicitly tell you to set them before their
-    package is loaded (see 'C-h v VARIABLE' to look up their documentation).
-  - Setting doom variables (which start with 'doom-' or '+').
+;;   - Setting file/directory variables (like `org-directory')
+;;   - Setting variables which explicitly tell you to set them before their
+;;     package is loaded (see 'C-h v VARIABLE' to look up their documentation).
+;;   - Setting doom variables (which start with 'doom-' or '+').
 
-Here are some additional functions/macros that will help you configure Doom.
+;; Here are some additional functions/macros that will help you configure Doom.
 
-- `load!' for loading external *.el files relative to this one
-- `use-package!' for configuring packages
-- `after!' for running code after a package has loaded
-- `add-load-path!' for adding directories to the `load-path', relative to
-  this file. Emacs searches the `load-path' when you load packages with
-  `require' or `use-package'.
-- `map!' for binding new keys
+;; - `load!' for loading external *.el files relative to this one
+;; - `use-package!' for configuring packages
+;; - `after!' for running code after a package has loaded
+;; - `add-load-path!' for adding directories to the `load-path', relative to
+;;   this file. Emacs searches the `load-path' when you load packages with
+;;   `require' or `use-package'.
+;; - `map!' for binding new keys
 
-To get information about any of these functions/macros, move the cursor over
-the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
-This will open documentation for it, including demos of how they are used.
-Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
-etc).
+;; To get information about any of these functions/macros, move the cursor over
+;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
+;; This will open documentation for it, including demos of how they are used.
+;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
+;; etc).
 
-You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
-they are implemented.
+;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
+;; they are implemented.
+#+end_src
 
 ** Personal Info
 
@@ -93,6 +101,112 @@ change `org-directory'. It must be set before org loads!
 #+end_src
 
 * Custom Configurations
+** Elfeed for arxiv
+Config feeds andf etch papers whenever I open elfeed
+#+begin_src emacs-lisp :tangle yes
+;;(package! elfeed)
+(after! elfeed
+    (setq elfeed-feeds
+        '("http://export.arxiv.org/api/query?search_query=cat:stat.ML&start=0&max_results=100&sortBy=submittedDate&sortOrder=descending"
+        "http://export.arxiv.org/api/query?search_query=cat:cs.LG&start=0&max_results=100&sortBy=submittedDate&sortOrder=descending"
+        "http://export.arxiv.org/api/query?search_query=cat:cs.CL&start=0&max_results=100&sortBy=submittedDate&sortOrder=descending"))
+
+    (add-hook! 'elfeed-search-mode-hook 'elfeed-update)
+)
+;; (after! elfeed
+;;     (setq elfeed-search-filter "@1-month-ago +unread")
+;;     (setq elfeed-feeds
+;;     '("http://export.arxiv.org/api/query?search_query=cat:stat.ML&start=0&max_results=100&sortBy=submittedDate&sortOrder=descending"
+;;     "http://export.arxiv.org/api/query?search_query=cat:cs.LG&start=0&max_results=100&sortBy=submittedDate&sortOrder=descending"
+;;     "http://export.arxiv.org/api/query?search_query=cat:cs.CL&start=0&max_results=100&sortBy=submittedDate&sortOrder=descending"))
+;;     )
+;; (setq elfeed-feeds
+;;       '("https://this-week-in-rust.org/rss.xml"
+;; 	"http://feeds.bbci.co.uk/news/rss.xml"))
+;; (setq elfeed-feeds
+;;       '("https://this-week-in-rust.org/rss.xml"
+;;         "http://feeds.bbci.co.uk/news/rss.xml"))
+#+end_src
+
+Put author names next paper title in elfeed
+#+begin_src emacs-lisp :tangle yes
+(after! elfeed-score
+    (after! elfeed
+    (defun concatenate-authors (authors-list)
+        "Given AUTHORS-LIST, list of plists; return string of all authors concatenated."
+        (if (> (length authors-list) 1)
+            (format "%s et al." (plist-get (nth 0 authors-list) :name))
+        (plist-get (nth 0 authors-list) :name)))
+
+    (defun my-search-print-fn (entry)
+        "Print ENTRY to the buffer."
+        (let* ((date (elfeed-search-format-date (elfeed-entry-date entry)))
+            (title (or (elfeed-meta entry :title)
+                        (elfeed-entry-title entry) ""))
+            (title-faces (elfeed-search--faces (elfeed-entry-tags entry)))
+            (entry-authors (concatenate-authors
+                            (elfeed-meta entry :authors)))
+            (title-width (- (window-width) 10
+                            elfeed-search-trailing-width))
+            (title-column (elfeed-format-column
+                            title 100
+                            :left))
+            (entry-score (elfeed-format-column (number-to-string (elfeed-score-scoring-get-score-from-entry entry)) 10 :left))
+            (authors-column (elfeed-format-column entry-authors 40 :left)))
+        (insert (propertize date 'face 'elfeed-search-date-face) " ")
+
+        (insert (propertize title-column
+                            'face title-faces 'kbd-help title) " ")
+        (insert (propertize authors-column
+                            'kbd-help entry-authors) " ")
+        (insert entry-score " ")))
+
+    (setq elfeed-search-print-entry-function #'my-search-print-fn)
+    (setq elfeed-search-date-format '("%y-%m-%d" 10 :left))
+    (setq elfeed-search-title-max-width 110)
+    )
+)
+#+end_src
+
+
+# Set up scoring for elfeed
+#+begin_src emacs-lisp :tangle packages.el
+(package! elfeed-score)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(after! elfeed-score
+ (elfeed-score-load-score-file "~/.dotfiles/doom-literate.d/elfeed.score") ; See the elfeed-score documentation for the score file syntax
+ (elfeed-score-enable)
+ (define-key elfeed-search-mode-map "=" elfeed-score-map))
+#+end_src
+
+#+begin_src emacs-lisp :tangle elfeed.score
+;;; Elfeed score file                                     -*- lisp -*-
+((version 10)
+ ("title"
+  (:text "World model" :value 50 :type s)
+  (:text "Uncertainty" :value 50 :type s)
+  (:text "Bayesian" :value 50 :type s))
+ ;; ("content")
+ ;; ("title-or-content"
+ ;;  (:text "Gender Bias" :title-value 50 :content-value 50 :type s)
+ ;;  (:text "BERT" :title-value 100 :content-value 50 :type S)
+ ;;  (:text "Generalization" :title-value 30 :content-value 20 :type s)
+ ;;  (:text "out-of-distribution" :title-value 20 :content-value 30 :type s)
+ ;;  (:text "language model" :title-value 20 :content-value 30 :type s))
+ ;; ("tag")
+ ("authors"
+  (:text "Sergey Levine" :value 200 :type w)
+  (:text "Chelsea Finn" :value 200 :type w)
+  (:text "Felix Berkenkamp" :value 200 :type w)
+  (:text "Jan Peters" :value 200 :type w))
+ ("feed")
+ ("link")
+ ("udf")
+ (mark nil)
+ ("adjust-tags"))
+#+end_src
 ** Set variables
 #+begin_src emacs-lisp :tangle yes
 (setq zot_bib (concat org-directory "/ref/zotero-library.bib")
@@ -138,14 +252,111 @@ change `org-directory'. It must be set before org loads!
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-ref)
 #+end_src
-Setup org-ref to use zotero bib file in cloud
+I now use doom's biblio module for working with bibliographies and citations.
+However, I still need org-ref for cross referencing within org files e.g. ref:fig-cat.
+# Setup org-ref to use zotero bib file in cloud
 #+begin_src emacs-lisp :tangle yes
-(after! org
-    (use-package! org-ref
-      :config
-      (setq org-ref-default-bibliography '(zot_bib))))
+(use-package! org-ref)
+;; (after! org
+;;     (use-package! org-ref
+;;       :config
+;;       (setq org-ref-default-bibliography zot_bib)))
 #+end_src
 
+*** biblio module config
+Setup citar to use zotero bib file in cloud
+#+begin_src emacs-lisp :tangle yes
+(use-package! citar
+  :config
+  (setq! citar-bibliography zot_bib))
+#+end_src
+Set citar notes/files directories using org-roam
+#+begin_src emacs-lisp :tangle yes
+;; (setq! citar-library-paths '("/path/to/library/files/")
+#+end_src
+Make citar use all-the-icons symbols.
+#+begin_src emacs-lisp :tangle yes
+;; (setq citar-symbols
+;;       `((file ,(all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1) . " ")
+;;         (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) . " ")
+;;         (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) . " ")))
+(setq citar-symbol-separator "  ")
+#+end_src
+
+Use org-roam-bibtex to link org-roam notes to bibtex entries.
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-roam-bibtex
+  :recipe (:host github :repo "org-roam/org-roam-bibtex"))
+
+;; When using org-roam via the `+roam` flag
+(unpin! org-roam)
+#+end_src
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-roam-bibtex
+  :after org-roam
+  :config
+  (require 'org-roam-bibtex)
+  ;; (setq org-roam-capture-templates
+  ;;       '(;; ... other templates
+  ;;         ;; bibliography note template
+  ;;         ("r" "bibliography reference" plain "%?"
+  ;;          :target
+  ;;          (file+head "references/${citekey}.org" "#+title: ${title}\n")
+  ;;          :unnarrowed t)))
+
+  ;; TODO update these templates to use my org roam files
+  ;; (setq org-roam-capture-templates
+  ;; '(
+  ;;   ;; ("d" "default" plain "%?"
+  ;;   ;;  :if-new (file+head "${slug}.org"
+  ;;   ;;                     "#+title: ${title}\n#+SETUPFILE: ~/bib-lib/setup_file.org\n* References :ignore:\n#+print_bibliography:")
+  ;;   ;;  :unnarrowed t)
+  ;;   ;; capture to inbox
+  ;;   ("i" "inbox" entry "* TODO %?\n"
+  ;;    :target (node "45acaadd-02fb-4b93-a741-45d37ff9fd5e")
+  ;;    :unnarrowed t
+  ;;    :empty-lines-before 1
+  ;;    :empty-lines-after 1
+  ;;    :prepend t)
+  ;;   ;; bibliography note template
+  ;;   ("r" "bibliography reference" plain "%?"
+  ;;    :if-new (file+head "references/notes_${citekey}.org"
+  ;;                       "#+title: Notes on ${title}\n#+SETUPFILE: ~/bib-lib/ref_setup_file.org\n* References :ignore:\n#+print_bibliography:")
+  ;;    :unnarrowed t)
+  ;;   ;; for my annotated bibliography needs
+  ;;   ("s" "short bibliography reference (no id)" entry "* ${title} [cite:@%^{citekey}]\n%?"
+  ;;    :target (node "01af7246-1b2e-42a5-b8e7-68be9157241d")
+  ;;    :unnarrowed t
+  ;;    :empty-lines-before 1
+  ;;    :prepend t)))
+
+  (setq citar-notes-paths (list (concat org-directory "/roam/references")
+                                org-roam-directory (concat org-directory "/roam"))
+        ))
+;; (use-package! org-roam-bibtex
+;; :config
+
+;; (defun robo/capture-to-inbox ()
+;;   "Capture a TODO straight to the inbox."
+;;   (interactive)
+;;   (org-roam-capture- :goto nil
+;;                      :keys "i"
+;;                      :node (org-roam-node-from-id "45acaadd-02fb-4b93-a741-45d37ff9fd5e")))
+;; (setq citar-open-note-function 'orb-citar-edit-note
+;;       citar-notes-paths (concat org-directory "/roam/references")
+;;       orb-preformat-keywords '("citekey" "title" "url" "author-or-editor" "keywords" "file")
+;;       orb-process-file-keyword t
+;;       orb-file-field-extensions '("pdf")))
+#+end_src
+
+# #+begin_src emacs-lisp :tangle yes
+# (after! org-roam
+#   (setq org-roam-v2-ack t
+#         +org-roam-open-buffer-on-find-file nil
+#         org-roam-node-display-template "${title:80} ${tags:80}"
+#         org-roam-completion-everywhere nil
+#         org-roam-directory robo/bib-notes-dir))
+# #+end_src
 *** Set up ignore headings tag
 Import ignore-headlines to allow a headline (but not its children) to
 be ignored.  Any headline tagged with the 'ignore' tag will be
@@ -172,7 +383,8 @@ ignored), and will instead have their levels promoted by one.
     (use-package! ox-latex
       :config
       (setq org-latex-pdf-process
-            '("latexmk -interaction=nonstopmode -output-directory=./tex -output-format=pdf %f"))))
+            ;; '("latexmk -interaction=nonstopmode -output-directory=./tex -output-format=pdf %f"))))
+            '("mkdir compile \n latexmk -cd -f -interaction=nonstopmode -outdir=./compile -auxdir=./compile -output-format=pdf %f \n cp ./compile/%b.pdf ./%b.pdf"))))
       ;; '("latexmk -f -silent -output-directory=./tex -output-format=pdf %f \n cp ./tex/%b.pdf ./%b.pdf"))
       ;; (setq org-latex-with-hyperref nil) ;; stop org adding hypersetup{author..} to latex export
       ;; (setq org-latex-prefer-user-labels t)
@@ -188,6 +400,49 @@ ignored), and will instead have their levels promoted by one.
    (latex . t)
    (org . t)))
 #+end_src
+
+*** org-roamv2
+#+begin_src emacs-lisp :tangle yes
+#+end_src
+*** note taking
+#+begin_src emacs-lisp :tangle yes
+;; (after! org-roam
+;;   :ensure t
+;;   :custom
+;;   ;; (setq org-roam-directory (file-truename "~/braindump"))
+;;   (setq org-roam-dailies-directory "daily/")
+;;   (setq org-roam-dailies-capture-templates
+;;         '(("d" "default" entry
+;;            "* %?"
+;;            :target (file+head "%<%Y-%m-%d>.org"
+;;                               "#+title: %<%Y-%m-%d>\n"))))
+;;   (add-to-list 'display-buffer-alist
+;;                '("\\*org-roam\\*"
+;;                  (display-buffer-in-direction)
+;;                  (direction . right)
+;;                  (window-width . 0.33)
+;;                  (window-height . fit-window-to-buffer)))
+;;   (setq org-roam-capture-templates
+;;         '(("d" "default" plain "%?"
+;;            :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+;;                               "#+title: ${title}\n<t")
+;;            :unnarrowed t)
+;;           ("m" "meeting" plain "%?"
+;;            :target (file+head "meetings/%<%Y%m%d%H%M%S>-${slug}.org"
+;;                               ":PROPERTIES:\n:project: fill\n:people: fill\n:END:\n#+title: ${title} %<%Y-%m-%d>\n#+filetags:")
+;;            :unnarrowed t)
+;;           ("t" "main" plain "%?"
+;;            :target (file+head "main/%<%Y%m%d%H%M%S>-${slug}.org"
+;;                               "#+title: ${title}\n#+filetags:")
+;;            :unnarrowed t)
+;;           ("a" "article" plain "%?"
+;;            :target (file+head "articles/${title}-${slug}.org"
+;;                               "#+title: ${title}\n#+filetags: articles\n#+AUTHOR: Riccardo Pinosio\n#+DATE: %<%Y-%m-%d>")
+;;            :unnarrowed t)))
+;;   :config
+;;   (org-roam-db-autosync-enable))
+#+end_src
+
 
 ** Format
 Disable formatter from lsp so that (format +onsave)
@@ -267,11 +522,13 @@ Change workspaces to "layouts" using l instead of using TAB
 ;; dired quick links
 (defun my/open-config () (interactive) (dired "/Users/scannea1/.config"))
 (defun my/open-dotfiles() (interactive) (dired "/Users/scannea1/.dotfiles"))
-(defun my/open-python-projects () (interactive) (dired "/Users/scannea1/Developer/python-projects"))
+;; (defun my/open-python-projects () (interactive) (dired "/Users/scannea1/Developer/python-projects"))
+(defun my/open-python-projects () (interactive) (dired "/Users/scannea1/python-projects"))
 (defun my/open-home () (interactive) (dired "/Users/scannea1"))
 (defun my/open-documents () (interactive) (dired "/Users/scannea1/Documents"))
 (defun my/open-emacs () (interactive) (dired doom-private-dir))
-(defun my/open-downloads () (interactive) (dired "/Users/scannea1/Downloads"))
+;; (defun my/open-downloads () (interactive) (dired "/Users/scannea1/Downloads"))
+(defun my/open-org-directory() (interactive) (dired org-directory))
 (defun my/open-notes () (interactive) (dired "/Users/scannea1/Dropbox/org"))
 
 (map! :after dired
@@ -288,7 +545,8 @@ Change workspaces to "layouts" using l instead of using TAB
        :desc "emacs" "e"  #'my/open-emacs
        :desc "~/Documents" "D"  #'my/open-documents
        :desc "~/" "h"  #'my/open-home
-       :desc "~/Downloads" "o"  #'my/open-downloads
+       ;; :desc "~/Downloads" "o"  #'my/open-downloads
+       :desc "org-directory" "o"  #'my/open-org-directory
        :desc "python-projects" "p"  #'my/open-python-projects
        :desc "notes" "n"  #'my/open-notes
        ))
@@ -322,14 +580,115 @@ Make dired-omit-mode hide dotfiles
 ;; (setq dired-omit-verbose nil)
 #+end_src
 
+Dired preview for auto previewing files in dired.
+#+begin_src emacs-lisp :tangle packages.el
+(package! dired-preview)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+;; (setq dired-omit-verbose nil)
+(after! 'dired-preview
+
+    ;; Default values for demo purposes
+    (setq dired-preview-delay 0.2)
+    (setq dired-preview-max-size (expt 2 100))
+    (setq dired-preview-ignored-extensions-regexp
+        (concat "\\."
+                "\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a"
+                "\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip"
+                "\\|iso\\|epub\\)"))
+                ;; "\\|iso\\|epub\\|pdf\\)"))
+
+    ;; Enable `dired-preview-mode' in a given Dired buffer or do it
+    ;; globally:
+    (dired-preview-global-mode 1)
+)
+#+end_src
+
 ** LaTeX
 #+begin_src emacs-lisp :tangle yes
-;; (add-hook pdf-view-mode-hook 'auto-revert-mode)
+;; (add-hook pdf-view-mode-hook 'auto-revert-mode) # TODO add this back when pdf-tool is installed properly??
 (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
 
 ;; Config for doom latex lang
 (after! reftex
   (setq reftex-default-bibliography zot_bib))
 
+(setq +latex-viewers '(pdf-tools preview))
 ;; (setq +latex-viewers '(pdf-tools preview))
 #+end_src
+
+** Email
+
+#+begin_src emacs-lisp
+;; (add-to-list 'load-path "~/Homebrew/bin/mu")
+(setq mu4e-mu-binary "~/Homebrew/bin/mu")
+#+end_src
+
+Use mbsync for email.
+#+begin_src emacs-lisp :tangle yes
+;; (setq +notmuch-sync-backend 'mbsync)
+;; (setq +mu4e-backend 'offlineimap)
+
+(set-email-account! "gmail"
+  '((mu4e-sent-folder       . "/Sent Mail")
+    (mu4e-drafts-folder     . "/Drafts")
+    (mu4e-trash-folder      . "/Trash")
+    (mu4e-refile-folder     . "/All Mail")
+    (smtpmail-smtp-user     . "scannell.aidan@gmail.com")
+    ;; (user-mail-address      . ".com")    ;; only needed for mu < 1.4
+    (mu4e-compose-signature . "---\nYours truly\nThe Baz"))
+  t)
+
+(setq +mu4e-gmail-accounts '(("scannell.aidan@gmail.com" . "/scannell.aidan")))
+;;                              ;; ("example@example.com" . "/example")))
+
+(setq mu4e-context-policy 'ask-if-none
+      mu4e-compose-context-policy 'always-ask)
+#+end_src
+*** mu4e-alert
+This provides notifications through the [[https://github.com/jwiegley/alert][alert]] library.
+
+If you don't like this use:
+#+begin_src emacs-lisp
+;; add to $DOOMDIR/packages.el
+;; (package! mu4e-alert :disable t)
+#+end_src
+
+
+*** Enabling automatic email fetching
+By default, periodic email update is *disabled*. To enable periodic
+mail retrieval/indexing, change the value of ~mu4e-update-interval~:
+
+#+begin_src emacs-lisp
+;; (setq mu4e-update-interval 60)
+#+end_src
+
+*** HMTL view with xwidgets
+#+begin_src emacs-lisp :tangle packages.el
+(package! mu4e-views)
+#+end_src
+#+begin_src emacs-lisp
+(add-to-list 'mu4e-headers-actions
+             '("xWidget" . mu4e-action-view-with-xwidget) t)
+(add-to-list 'mu4e-view-actions
+             '("xWidget" . mu4e-action-view-with-xwidget) t)
+#+end_src
+** grip mode - view markdown/org in html
+#+begin_src emacs-lisp :tangle packages.el
+(package! grip-mode)
+
+;; (package! doom-modeline)
+#+end_src
+#+begin_src emacs-lisp :tangle yes
+;; (after! grip-mode
+;;   :ensure t
+;;   :bind (:map markdown-mode-command-map
+;;          ("g" . grip-mode)))
+
+;; ;; Or using hooks
+;; (package! grip-mode
+;;   :ensure t
+;;   :hook ((markdown-mode org-mode) . grip-mode))
+#+end_src
+
